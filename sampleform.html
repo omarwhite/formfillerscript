@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sample Form</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>FORM</h1>
+    <form>
+        <label for="dropdown">Select one:</label>
+        <select name="dropdown" id="dropdown" required>
+            <option value="one">one</option>
+            <option value="two">two</option>
+            <option value="three">three</option>
+            <option value="four">four</option>
+        </select>
+        <label for="textbox">Enter text:</label>
+        <input type="text" id="textbox" required>
+        <input type="submit" value="Submit" onclick="showAlert()">
+        <script>
+            function showAlert(){
+                alert("text here");
+            }
+        </script>
+    </form>
+  </body>
+</html>
