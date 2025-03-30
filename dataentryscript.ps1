@@ -1,26 +1,83 @@
 # First part is just initializing stuff
 
-# Global variables here
-$StationTrackerMode = 1
-$ChildIDMode = 2
+using namespace System.Collections.Generic # Initializing Lists
 
-# Define paths for necessary dependencies
-$dllPath = "$PSScriptRoot\Lib"
-$edgeDriverPath = "$PSScriptRoot\Drivers\msedgedriver.exe"
+# Constants here
+$scriptModes = @(1, 2, 3) # 1 is for Station Tracker, 2 is for Child ID Maker, 3 is for Inventory Checker
+$childIdModes = @(1, 2) # 1 is for creating Child IDs and then displaying a list to send to someone else, 2 is for printing an existing list, 3 is for 1 then 2 sequentially
+$childIdCreatorModes = @(1, 2) # 1 is for Normal Mode, 2 is for Quick Mode
+$inputTypes = @(1, 2) # 1 is for IDs, 2 is for Numbers-within-a-range
+
+# Define paths
+$dllDir = "$PSScriptRoot\Lib"
+$driverDir = "$PSScriptRoot\Drivers"
+
+# Create directories if they don't exist
+if (-not (Test-Path $dllDir)) { New-Item -ItemType Directory -Path $dllDir }
+if (-not (Test-Path $driverDir)) { New-Item -ItemType Directory -Path $driverDir }
+
+# Download Selenium DLLs
+# Add part here to check if there are already working Selenium DLLs
+$seleniumNuGetUrl = "https://www.nuget.org/api/v2/package/Selenium.WebDriver/4.10.0"
+$tempZip = "$env:TEMP\selenium.zip"
+Invoke-WebRequest -Uri $seleniumNuGetUrl -OutFile $tempZip
+Expand-Archive -Path $tempZip -DestinationPath "$env:TEMP\selenium" -Force
+Copy-Item -Path "$env:TEMP\selenium\lib\net45\WebDriver.dll" -Destination "$dllDir\WebDriver.dll"
+Copy-Item -Path "$env:TEMP\selenium\lib\net45\WebDriver.Support.dll" -Destination "$dllDir\WebDriver.Support.dll"
+Remove-Item -Path $tempZip -Force
+Remove-Item -Path "$env:TEMP\selenium" -Recurse -Force
+
+# Download EdgeDriver
+# Add part here to check if there is already a working EdgeDriver
+$edgeVersion = (Get-Item (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe').'(Default)').VersionInfo.ProductVersion
+$majorVersion = $edgeVersion.Split('.')[0]
+$driverUrl = "https://msedgedriver.azureedge.net/$majorVersion.0.0.0/edgedriver_win64.zip"
+$tempZip = "$env:TEMP\edgedriver.zip"
+Invoke-WebRequest -Uri $driverUrl -OutFile $tempZip
+Expand-Archive -Path $tempZip -DestinationPath $driverDir -Force
+Remove-Item -Path $tempZip -Force
 
 # Load Selenium DLLs
-Add-Type -Path "$dllPath\WebDriver.dll"
-Add-Type -Path "$dllPath\WebDriver.Support.dll"
+Add-Type -Path "$dllDir\WebDriver.dll"
+Add-Type -Path "$dllDir\WebDriver.Support.dll"
 
-# Start EdgeDriver service
-$service = [OpenQA.Selenium.Edge.EdgeDriverService]::CreateDefaultService($edgeDriverPath)
-$service.HideCommandPromptWindow = $true  # Hide the console window
-
-# Configure Edge options
+# Start EdgeDriver
+$service = [OpenQA.Selenium.Edge.EdgeDriverService]::CreateDefaultService($driverDir)
 $options = New-Object OpenQA.Selenium.Edge.EdgeOptions
-$options.AddArgument("--headless")  # Do I want this to be headless? Maybe only part of it?
+$driver = New-Object OpenQA.Selenium.Edge.EdgeDriver($service, $options)
 
 # Actual logic starts here-----
+
+# Functions 
+
+function InputChecker {
+    param (
+        $uncheckedInput,
+        $inputType
+    )
+
+}
+
+function LogInHandler {
+    param (
+
+    )
+
+}
+
+function FormFiller {
+    param (
+        $formData,
+        $targetField
+    )
+
+}
+
+function InfoGet {
+    param (
+        $targetData
+    )
+}
 
 <# 
     Open website and handle log in
@@ -41,5 +98,41 @@ $options.AddArgument("--headless")  # Do I want this to be headless? Maybe only 
     TODO: Figure this shit out 
  #>
 
+# Main logic flow
+ 
 # Prompt user for intended usage
-$ScriptMode = Read-Host "What part of the script would you like to use? 'r'nEnter 1 for Station Tracker'r'nEnter 2 for Child ID creation"
+$scriptMode = Read-Host "What part of the script would you like to use?'n'n'tEnter 1 for Station Tracker'n'n'tEnter 2 for Child ID handler'n'n'tEnter 3 for Inventory Checker'n"
+
+# Case switch statement to determine which function of the script will be used in this window
+switch ($scriptMode) {
+    # Station Tracker
+    $scriptModes[0] {
+
+    }
+
+    # Child ID Handler
+    $scriptModes[1] {
+        $childIdMode = Read-Host "Would you like to:'n'n't1. Create children'n'n't2. Print an existing list of labels'n'n"
+
+        switch ($childIdMode) {
+            # Child ID Creator
+            $childIdModes[0] {
+
+                
+            }
+
+            # Label printer
+            $childIdModes[1] {
+
+            }
+        }
+        $parentID = Read-Host "Enter the Parent ID: "
+        $serialNums = Read-Host "Please enter the Serial Numbers separated by spaces:'n" -split
+        $childIdCreatorMode = Read-Host "Enter 1 for Normal Mode'n'nEnter 2 for Quick Mode'n"
+    }
+
+    # Inventory Checker
+    $scriptModes[2] {
+
+    }
+}
